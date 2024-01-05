@@ -9,15 +9,62 @@ datasource db {
 }
 
 model Recipe {
-    id    Int    @id @default(autoincrement())
-    title String
-
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    createdBy   User     @relation(fields: [createdById], references: [id])
-    createdById String
+    id                Int                @id @default(autoincrement())
+    title             String
+    imageUrl          String
+    cookingTime       Int
+    difficultyLevel   DifficultyLevel
+    details           String             @db.Text
+    createdAt         DateTime           @default(now())
+    updatedAt         DateTime           @updatedAt
+    createdBy         User               @relation(fields: [createdById], references: [id], onDelete: Cascade)
+    createdById       String
+    categoryId        Int
+    category          Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    recipeIngredients RecipeIngredient[]
+    recipeTags        RecipeTag[]
 
     @@index([title])
+}
+
+enum DifficultyLevel {
+    EASY
+    MODERATE
+    DIFFICULT
+}
+
+model Category {
+    id      Int      @id @default(autoincrement())
+    title   String
+    recipes Recipe[]
+}
+
+model Ingredient {
+    id                Int                @id @default(autoincrement())
+    title             String
+    recipeIngredients RecipeIngredient[]
+}
+
+model RecipeIngredient {
+    id            Int        @id @default(autoincrement())
+    ingredientFor Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+    recipeId      Int
+    ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+    ingredientId  Int
+}
+
+model Tag {
+    id         Int         @id @default(autoincrement())
+    title      String
+    recipeTags RecipeTag[]
+}
+
+model RecipeTag {
+    id       Int    @id @default(autoincrement())
+    tagFor   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+    recipeId Int
+    tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+    tagId    Int
 }
 
 // Necessary for Next auth
@@ -55,7 +102,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    posts         Recipe[]
+    recipes       Recipe[]
 }
 
 model VerificationToken {
