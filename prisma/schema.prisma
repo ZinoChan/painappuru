@@ -19,8 +19,8 @@ model Recipe {
     updatedAt         DateTime           @updatedAt
     createdBy         User               @relation(fields: [createdById], references: [id], onDelete: Cascade)
     createdById       String
-    categoryId        Int
     category          Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    categoryId        Int
     recipeIngredients RecipeIngredient[]
     recipeTags        RecipeTag[]
 
@@ -41,7 +41,7 @@ model Category {
 
 model Ingredient {
     id                Int                @id @default(autoincrement())
-    title             String
+    title             String             @unique
     recipeIngredients RecipeIngredient[]
 }
 
@@ -51,11 +51,12 @@ model RecipeIngredient {
     recipeId      Int
     ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
     ingredientId  Int
+    quantity      String
 }
 
 model Tag {
     id         Int         @id @default(autoincrement())
-    title      String
+    title      String      @unique
     recipeTags RecipeTag[]
 }
 
