@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
-import { recipeSchema } from "@/schemas/recipeSchema";
+import { recipeSchema, updateRecipeSchema } from "@/schemas/recipeSchema";
 
 export const recipeRouter = createTRPCRouter({
   getRecipes: publicProcedure.query(({ ctx }) => {
@@ -24,9 +24,7 @@ export const recipeRouter = createTRPCRouter({
         cookingTime,
         difficultyLevel,
         details,
-        categoryId,
-        ingredients,
-        tags,
+        categoryTitle,
       } = input;
 
       return ctx.db.recipe.create({
@@ -38,30 +36,50 @@ export const recipeRouter = createTRPCRouter({
           details,
           createdBy: { connect: { id: ctx.session.user.id } },
           category: {
-            connect: { id: categoryId },
-          },
-          recipeIngredients: {
-            create: ingredients.map((ingredient) => ({
-              ingredient: {
-                connectOrCreate: {
-                  where: { title: ingredient.title },
-                  create: { title: ingredient.title },
-                },
-              },
-              quantity: ingredient.quantity,
-            })),
-          },
-          recipeTags: {
-            create: tags.map((tag) => ({
-              tag: {
-                connectOrCreate: {
-                  where: { title: tag.title },
-                  create: { title: tag.title },
-                },
-              },
-            })),
+            connect: { title: categoryTitle },
           },
         },
       });
+    }),
+  updateRecipe: protectedProcedure
+    .input(updateRecipeSchema)
+    .mutation(async ({ ctx, input }) => {
+      const {
+        id,
+        title,
+        imageUrl,
+        cookingTime,
+        difficultyLevel,
+        details,
+        categoryId,
+      } = input;
+      const existingRecipe = await ctx.db.recipe.findFirst({
+        where: { id: id },
+      });
+      if (existingRecipe) {
+        return ctx.db.recipe.update({
+          where: { id: id },
+          data: {
+            title: title ?? existingRecipe.title,
+            imageUrl: imageUrl ?? existingRecipe.imageUrl,
+            cookingTime: cookingTime ?? existingRecipe.cookingTime,
+            difficultyLevel: difficultyLevel ?? existingRecipe.difficultyLevel,
+            details: details ?? existingRecipe.details,
+            category: {
+              connect: { id: categoryId },
+            },
+          },
+        });
+      }
+    }),
+  deleteRecipe: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ ctx, input }) => {
+      const recipeExist = await ctx.db.recipe.findFirst({
+        where: { id: input },
+      });
+      if (recipeExist) {
+        await ctx.db.recipe.delete({ where: { id: input } });
+      }
     }),
 });
