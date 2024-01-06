@@ -5,6 +5,23 @@
 await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.discordapp.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'utfs.io',
+      },
+    ],
+  },
+};
 
 export default config;
