@@ -64,7 +64,7 @@ const SearchForm = ({ categories }: { categories: Category[] }) => {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        {recipes?.data?.length! > 0 ? (
+        {recipes?.data?.length !== undefined && recipes.data.length > 0 ? (
           recipes?.data?.map((recipe) => (
             <RecipeCard
               key={recipe.id}

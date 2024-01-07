@@ -1,4 +1,4 @@
-import { DifficultyLevel } from "@prisma/client";
+import type { DifficultyLevel } from "@prisma/client";
 
 const Level = ({ difficultyLevel }: { difficultyLevel: DifficultyLevel }) => {
   if (difficultyLevel == "DIFFICULT")

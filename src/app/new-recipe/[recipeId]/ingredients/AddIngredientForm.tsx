@@ -20,7 +20,7 @@ const IngredientForm = ({ ingredients, measurmentUnits, recipeId }: Props) => {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    // formState: { errors },
   } = useForm<ingredientSchemaType>({
     resolver: zodResolver(ingredientSchema),
   });

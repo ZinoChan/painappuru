@@ -1,11 +1,9 @@
-import { api } from "@/trpc/server";
 import SearchForm from "./components/Search";
+import { api } from "@/trpc/server";
 
 export default async function Home() {
-  const [recipes, categories] = await Promise.all([
-    api.recipe.getRecipes.query(),
-    api.category.getCategories.query(),
-  ]);
+  const categories = await api.category.getCategories.query();
+
   return (
     <section className="py-16">
       <div className="mx-auto max-w-screen-xl px-2">
