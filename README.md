@@ -16,3 +16,26 @@ Welcome to the Recipe Sharing Platform API! This powerful API is designed to fac
 - **tRPC**: efficient data fetching and mutation.
 - **NextAuth**: for a secure user experience.
 - **Prisma**:  for effective data handling.
+
+## How to run
+ 1. create .env:
+```
+NEXTAUTH_SECRET=""
+NEXTAUTH_URL="http://localhost:3000"
+
+DISCORD_CLIENT_ID=""
+DISCORD_CLIENT_SECRET=""
+
+
+UPLOADTHING_SECRET=
+UPLOADTHING_APP_ID=
+
+DATABASE_URL=
+SHADOW_DATABASE_URL=
+
+```
+ 2. run dev :
+```bash
+npm run db:push
+npm run dev
+``` 
