@@ -32,6 +32,7 @@ export const recipeRouter = createTRPCRouter({
         },
       });
     }),
+
   addRecipe: protectedProcedure
     .input(recipeSchema)
     .mutation(async ({ ctx, input }) => {
@@ -62,20 +63,20 @@ export const recipeRouter = createTRPCRouter({
     .input(updateRecipeSchema)
     .mutation(async ({ ctx, input }) => {
       const {
-        id,
+        recipeId,
         title,
         imageUrl,
         cookingTime,
         difficultyLevel,
         details,
-        categoryId,
+        categoryTitle,
       } = input;
       const existingRecipe = await ctx.db.recipe.findFirst({
-        where: { id: id },
+        where: { id: recipeId },
       });
       if (existingRecipe) {
         return ctx.db.recipe.update({
-          where: { id: id },
+          where: { id: recipeId },
           data: {
             title: title ?? existingRecipe.title,
             imageUrl: imageUrl ?? existingRecipe.imageUrl,
@@ -83,7 +84,7 @@ export const recipeRouter = createTRPCRouter({
             difficultyLevel: difficultyLevel ?? existingRecipe.difficultyLevel,
             details: details ?? existingRecipe.details,
             category: {
-              connect: { id: categoryId },
+              connect: { title: categoryTitle },
             },
           },
         });
@@ -93,10 +94,63 @@ export const recipeRouter = createTRPCRouter({
     .input(z.number())
     .mutation(async ({ ctx, input }) => {
       const recipeExist = await ctx.db.recipe.findFirst({
-        where: { id: input },
+        where: { id: input, createdById: ctx.session.user.id },
       });
       if (recipeExist) {
         await ctx.db.recipe.delete({ where: { id: input } });
+      }
+    }),
+  searchByIngredients: publicProcedure
+    .input(
+      z.object({
+        category: z.string(),
+        ingredient: z.string(),
+      }),
+    )
+    .query(({ ctx, input }) => {
+      if (input.category && input.ingredient) {
+        return ctx.db.recipe.findMany({
+          where: {
+            categoryTitle: {
+              contains: input.category,
+            },
+            recipeIngredients: {
+              some: {
+                ingredient: {
+                  title: {
+                    contains: input.ingredient,
+                    mode: "insensitive",
+                  },
+                },
+              },
+            },
+          },
+        });
+      } else if (input.category) {
+        return ctx.db.recipe.findMany({
+          where: {
+            categoryTitle: {
+              contains: input.category,
+            },
+          },
+        });
+      } else if (input.ingredient) {
+        return ctx.db.recipe.findMany({
+          where: {
+            recipeIngredients: {
+              some: {
+                ingredient: {
+                  title: {
+                    contains: input.ingredient,
+                    mode: "insensitive",
+                  },
+                },
+              },
+            },
+          },
+        });
+      } else {
+        return ctx.db.recipe.findMany();
       }
     }),
 });

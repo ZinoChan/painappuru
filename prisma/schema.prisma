@@ -19,10 +19,9 @@ model Recipe {
     updatedAt         DateTime           @updatedAt
     createdBy         User               @relation(fields: [createdById], references: [id], onDelete: Cascade)
     createdById       String
-    category          Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-    categoryId        Int
+    category          Category           @relation(fields: [categoryTitle], references: [title], onDelete: Cascade)
+    categoryTitle     String
     recipeIngredients RecipeIngredient[]
-    recipeTags        RecipeTag[]
 
     @@index([title])
 }
@@ -35,7 +34,7 @@ enum DifficultyLevel {
 
 model Category {
     id      Int      @id @default(autoincrement())
-    title   String
+    title   String   @unique
     recipes Recipe[]
 }
 
@@ -46,26 +45,22 @@ model Ingredient {
 }
 
 model RecipeIngredient {
-    id            Int        @id @default(autoincrement())
-    ingredientFor Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-    recipeId      Int
-    ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-    ingredientId  Int
-    quantity      String
+    id               Int            @id @default(autoincrement())
+    ingredientFor    Recipe         @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+    recipeId         Int
+    ingredient       Ingredient     @relation(fields: [ingredientId], references: [id])
+    ingredientId     Int
+    measurmentQty    Int
+    measurmentUnit   measurmentUnit @relation(fields: [measurmentUnitId], references: [id])
+    measurmentUnitId Int
 }
 
-model Tag {
-    id         Int         @id @default(autoincrement())
-    title      String      @unique
-    recipeTags RecipeTag[]
-}
-
-model RecipeTag {
-    id       Int    @id @default(autoincrement())
-    tagFor   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-    recipeId Int
-    tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
-    tagId    Int
+model measurmentUnit {
+    id               Int                @id @default(autoincrement())
+    title            String             @unique
+    recipeIngredient RecipeIngredient[]
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime           @updatedAt()
 }
 
 // Necessary for Next auth

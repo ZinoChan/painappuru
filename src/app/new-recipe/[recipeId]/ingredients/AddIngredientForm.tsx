@@ -1,13 +1,10 @@
 "use client";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ingredientSchema,
-  ingredientSchemaType,
-} from "@/schemas/ingredientSchema";
+import { ingredientSchema } from "@/schemas/ingredientSchema";
+import type { ingredientSchemaType } from "@/schemas/ingredientSchema";
 import { Plus, Trash } from "lucide-react";
-import { Ingredient, measurmentUnit } from "@prisma/client";
-import { useEffect } from "react";
+import type { Ingredient, measurmentUnit } from "@prisma/client";
 import { api } from "@/trpc/react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -24,7 +21,6 @@ const IngredientForm = ({ ingredients, measurmentUnits, recipeId }: Props) => {
     control,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm<ingredientSchemaType>({
     resolver: zodResolver(ingredientSchema),
   });
@@ -35,21 +31,13 @@ const IngredientForm = ({ ingredients, measurmentUnits, recipeId }: Props) => {
     name: "ingredients",
   });
 
-  useEffect(() => {
-    fields.forEach((_, index) => {
-      setValue(`ingredients.${index}.recipeId`, Number(recipeId));
-    });
-  }, [fields, setValue, recipeId]);
-
-  const { mutate, error, isLoading } = api.ingredient.addIngredient.useMutation(
-    {
-      onSuccess: (data) => {
-        toast.success("ingredients added");
-        router.push(`/new-recipe/${recipeId}/tags`);
-      },
-      onError: (error) => toast.error(error.message),
+  const { mutate, isLoading } = api.ingredient.addIngredient.useMutation({
+    onSuccess: () => {
+      toast.success("ingredients added");
+      router.push(`/`);
     },
-  );
+    onError: (error) => toast.error(error.message),
+  });
   const onSubmit = (data: ingredientSchemaType) => {
     mutate({ ingredients: data.ingredients });
   };
@@ -127,7 +115,7 @@ const IngredientForm = ({ ingredients, measurmentUnits, recipeId }: Props) => {
             append({
               ingredientTitle: "",
               measurmentUnitTitle: "",
-              recipeId: 0,
+              recipeId: Number(recipeId),
               measurmentQty: 0,
             });
           }}

@@ -1,7 +1,9 @@
 "use client";
 import { useForm } from "react-hook-form";
-import { recipeSchema, recipeSchemaType } from "@/schemas/recipeSchema";
-import { Category, DifficultyLevel } from "@prisma/client";
+import { recipeSchema } from "@/schemas/recipeSchema";
+import { DifficultyLevel } from "@prisma/client";
+import type { Category } from "@prisma/client";
+import type { recipeSchemaType } from "@/schemas/recipeSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api } from "@/trpc/react";
 import toast from "react-hot-toast";
@@ -25,8 +27,9 @@ export default function AddRecipeForm({
 
   const router = useRouter();
 
-  const { mutate, error, isLoading } = api.recipe.addRecipe.useMutation({
+  const { mutate, isLoading } = api.recipe.addRecipe.useMutation({
     onSuccess: (data) => {
+      toast.success("recipe created");
       reset();
       router.push(`/new-recipe/${data.id}/ingredients`);
     },
@@ -148,8 +151,8 @@ export default function AddRecipeForm({
         <UploadButton
           endpoint="imageUploader"
           onClientUploadComplete={(res) => {
-            setValue("imageUrl", res[0]?.url || "");
-            toast("Image Upload Completed");
+            setValue("imageUrl", res[0]?.url ?? "");
+            toast.success("Image Upload Completed");
           }}
           onUploadError={(error: Error) => {
             toast.error(`ERROR! ${error.message}`);

@@ -1,8 +1,13 @@
 import { api } from "@/trpc/server";
 import AddRecipeForm from "./AddRecipeForm";
-
+import { getServerAuthSession } from "@/server/auth";
+import { redirect } from "next/navigation";
 export default async function AddRecipe() {
-  const categories = await api.category.getCategories.query();
+  const [session, categories] = await Promise.all([
+    getServerAuthSession(),
+    api.category.getCategories.query(),
+  ]);
+  if (!session?.user.id) redirect(`/api/auth/signin?callbackUrl=/new-recipe`);
 
   return (
     <section className="py-8">
