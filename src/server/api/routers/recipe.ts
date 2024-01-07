@@ -15,6 +15,23 @@ export const recipeRouter = createTRPCRouter({
     });
   }),
 
+  getRecipeDetails: publicProcedure
+    .input(z.number())
+    .query(({ ctx, input }) => {
+      return ctx.db.recipe.findUnique({
+        where: { id: input },
+        include: {
+          createdBy: true,
+          category: true,
+          recipeIngredients: {
+            include: {
+              ingredient: true,
+              measurmentUnit: true,
+            },
+          },
+        },
+      });
+    }),
   addRecipe: protectedProcedure
     .input(recipeSchema)
     .mutation(async ({ ctx, input }) => {
