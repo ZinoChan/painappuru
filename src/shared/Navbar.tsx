@@ -13,7 +13,7 @@ export default function Navbar() {
         <div className="flex space-x-4">
           <Link
             href="/new-recipe"
-            className="flex items-center justify-center space-x-1 rounded border border-primary-500 px-4 py-2 text-sm font-bold text-primary-500 shadow transition-all hover:bg-green-400 hover:text-white"
+            className="flex items-center space-x-1 rounded  border-2 border-primary-500 px-4 py-2 text-center text-sm font-bold text-primary-500  hover:bg-primary-500/90 hover:text-white md:w-auto"
           >
             <Plus size={16} />
             <span>Add</span>
